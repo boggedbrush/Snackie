@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment
+.env
+.env.*
+
+# Platform
+.vercel/
+.netlify/
+
+# System
+.DS_Store
+
