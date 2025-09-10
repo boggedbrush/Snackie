@@ -7,22 +7,21 @@ import Quiz from './pages/Quiz'
 import Results from './pages/Results'
 import SharedResults from './pages/SharedResults'
 
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <App />,
-    children: [
-      { index: true, element: <Landing /> },
+  const router = createBrowserRouter([
+    {
+      path: '/',
+      element: <App />,
+      children: [
+        { index: true, element: <Landing /> },
       { path: 'quiz', element: <Quiz /> },
-      { path: 'results', element: <Results /> },
+      { path: 'results/:sessionId', element: <Results /> },
       { path: 's/:sessionId', element: <SharedResults /> },
-    ],
-  },
-])
+      ],
+    },
+  ])
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <RouterProvider router={router} />
   </React.StrictMode>
 )
-

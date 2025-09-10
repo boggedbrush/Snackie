@@ -18,11 +18,11 @@ function svgPlaceholder(label: string, bg = '#e2e8f0', fg = '#334155') {
 
 function demoSnacks(preference: string) {
   const base = [
-    { name: 'Greek Yogurt', imageUrl: svgPlaceholder('Yogurt'), calories: 120, protein: 15, carbs: 8, fat: 3, typeTags: ['high-protein', 'balanced'] },
-    { name: 'Almonds', imageUrl: svgPlaceholder('Almonds'), calories: 160, protein: 6, carbs: 6, fat: 14, typeTags: ['keto', 'balanced'] },
-    { name: 'Apple + PB', imageUrl: svgPlaceholder('Apple+PB'), calories: 190, protein: 7, carbs: 22, fat: 8, typeTags: ['balanced'] },
-    { name: 'Cottage Cheese', imageUrl: svgPlaceholder('Cottage'), calories: 110, protein: 13, carbs: 5, fat: 5, typeTags: ['high-protein'] },
-    { name: 'Cheese + Turkey Roll', imageUrl: svgPlaceholder('Roll'), calories: 180, protein: 14, carbs: 2, fat: 12, typeTags: ['keto', 'high-protein'] },
+    { name: 'Greek Yogurt', imageUrl: svgPlaceholder('Yogurt'), calories: 120, protein: 15, carbs: 8, fat: 3, typeTags: ['high-protein', 'balanced'], allergens: ['dairy'] },
+    { name: 'Almonds', imageUrl: svgPlaceholder('Almonds'), calories: 160, protein: 6, carbs: 6, fat: 14, typeTags: ['keto', 'low-carb', 'balanced'], allergens: ['nuts'] },
+    { name: 'Apple + PB', imageUrl: svgPlaceholder('Apple+PB'), calories: 190, protein: 7, carbs: 22, fat: 8, typeTags: ['balanced'], allergens: ['nuts'] },
+    { name: 'Cottage Cheese', imageUrl: svgPlaceholder('Cottage'), calories: 110, protein: 13, carbs: 5, fat: 5, typeTags: ['high-protein', 'low-carb'], allergens: ['dairy'] },
+    { name: 'Cheese + Turkey Roll', imageUrl: svgPlaceholder('Roll'), calories: 180, protein: 14, carbs: 2, fat: 12, typeTags: ['keto', 'low-carb', 'high-protein'], allergens: ['dairy'] },
   ]
   return base.filter(x => preference === 'balanced' || x.typeTags?.includes(preference)).slice(0, 5)
 }
@@ -40,8 +40,33 @@ export default async function handler(req: Request): Promise<Response> {
   const createdAt = new Date().toISOString()
   const windows = computeSnackWindows(body.breakfastTime, body.lunchTime, body.dinnerTime)
   const baseItems = demoSnacks(body.preference)
-  const enriched = await Promise.all(baseItems.map(async (it) => {
-    const img = await imageFor(it.name)
+  const restrictions = (body.restrictions || []).map((s: string) => s.toLowerCase())
+  const filtered = baseItems.filter((it: any) => {
+    const name = it.name.toLowerCase()
+    const tags: string[] = Array.isArray(it.allergens) ? it.allergens : []
+    return !restrictions.some(r => name.includes(r) || tags.includes(r))
+  })
+  const chosen = filtered.length ? filtered : baseItems
+  const NAME_TO_QUERIES: Record<string, string[]> = {
+    'Apple + PB': ['apple with peanut butter', 'apple peanut butter slices'],
+    'Cheese + Turkey Roll': [
+      'turkey and cheese roll-up',
+      'turkey cheese pinwheels',
+      'turkey and cheese roll ups'
+    ]
+  }
+  const enriched = await Promise.all(chosen.map(async (it) => {
+    const overrides = NAME_TO_QUERIES[it.name]
+    let img = null
+    if (overrides && overrides.length) {
+      for (const q of overrides) {
+        img = await imageFor(q)
+        if (img) break
+      }
+    }
+    if (!img) {
+      img = await imageFor(it.name)
+    }
     return { ...it, imageUrl: img?.imageUrl || it.imageUrl, credit: img?.credit }
   }))
   const recommendations = windows.map(w => ({

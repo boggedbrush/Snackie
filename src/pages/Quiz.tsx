@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TimePicker, { isValidTime } from '../components/TimePicker'
 
@@ -10,9 +10,22 @@ export default function Quiz() {
   const [restrictions, setRestrictions] = useState('')
   const navigate = useNavigate()
 
+  // Prefill from last quiz if present
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('snackie.lastQuiz')
+      if (!raw) return
+      const q = JSON.parse(raw)
+      if (q.breakfastTime) setBreakfastTime(q.breakfastTime)
+      if (q.lunchTime) setLunchTime(q.lunchTime)
+      if (q.dinnerTime) setDinnerTime(q.dinnerTime)
+      if (q.preference) setPreference(q.preference)
+      if (Array.isArray(q.restrictions)) setRestrictions(q.restrictions.join(', '))
+    } catch {}
+  }, [])
+
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    // For scaffold: store payload and navigate to results.
     const payload = {
       breakfastTime,
       lunchTime,
@@ -20,8 +33,24 @@ export default function Quiz() {
       preference,
       restrictions: restrictions.split(',').map(s => s.trim()).filter(Boolean)
     }
+    // Save for edit-prefill
     sessionStorage.setItem('snackie.lastQuiz', JSON.stringify(payload))
-    navigate('/results')
+    // Submit to API and route to results by id
+    try {
+      const res = await fetch('/api/quiz', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const data = await res.json()
+      try {
+        const key = 'snackie.sessions'
+        const list = JSON.parse(localStorage.getItem(key) || '[]')
+        list.unshift(data)
+        localStorage.setItem(key, JSON.stringify(list.slice(0, 10)))
+      } catch {}
+      navigate(`/results/${data.sessionId}`)
+    } catch (err) {
+      // Basic fallback: still navigate to results page which will try to load
+      navigate('/results/failed')
+    }
   }
 
   const validTimes = isValidTime(breakfastTime) && isValidTime(lunchTime) && isValidTime(dinnerTime)
@@ -66,4 +95,3 @@ export default function Quiz() {
     </form>
   )
 }
-

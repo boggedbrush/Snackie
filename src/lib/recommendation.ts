@@ -65,9 +65,8 @@ export function scoreItem(item: SnackItem, preference: string): number {
   if (preference === 'high-protein' && item.protein && item.calories) {
     score += 2 * (item.protein / Math.max(100, item.calories)) * 100 // approx per 100 kcal
   }
-  if (preference === 'keto' && typeof item.carbs === 'number') {
+  if ((preference === 'keto' || preference === 'low-carb') && typeof item.carbs === 'number') {
     score += Math.max(0, 20 - item.carbs) / 10
   }
   return score
 }
-
