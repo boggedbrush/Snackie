@@ -4,6 +4,9 @@ export default function App() {
   const { pathname } = useLocation()
   return (
     <div className="max-w-3xl mx-auto p-6">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-white focus:text-slate-900 focus:px-3 focus:py-2 focus:rounded focus:shadow">
+        Skip to content
+      </a>
       <header className="flex items-center justify-between mb-6">
         <Link to="/" className="font-semibold text-lg">Snackie</Link>
         <nav className="text-sm space-x-4">
@@ -11,7 +14,7 @@ export default function App() {
           <Link className={navClass(pathname.startsWith('/quiz'))} to="/quiz">Quiz</Link>
         </nav>
       </header>
-      <main>
+      <main id="main">
         <Outlet />
       </main>
       <footer className="mt-12 text-xs text-slate-500 space-y-1">

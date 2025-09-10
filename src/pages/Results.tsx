@@ -9,6 +9,7 @@ export default function Results() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<any | null>(null)
+  const [windows, setWindows] = useState<any[]>([])
 
   useEffect(() => {
     const run = async () => {
@@ -16,12 +17,14 @@ export default function Results() {
         setLoading(true)
         const res = await fetch(`/api/session/${sessionId}`)
         if (res.ok) {
-          setData(await res.json())
+          const json = await res.json()
+          setData(json)
+          setWindows(json.recommendations || [])
           return
         }
         const list = JSON.parse(localStorage.getItem('snackie.sessions') || '[]')
         const s = list.find((x: any) => x.sessionId === sessionId)
-        if (s) setData(s)
+        if (s) { setData(s); setWindows(s.recommendations || []) }
         else setError('Session not found')
       } catch (e: any) {
         setError(e.message)
@@ -50,14 +53,47 @@ export default function Results() {
                 className="text-sm text-emerald-700 underline"
               >Edit answers</button>
             </div>
-            <div className="space-y-4">
-              {data.recommendations.map((rec: any, idx: number) => (
+            <div className="space-y-4" aria-live="polite" aria-busy={loading}>
+              {windows.map((rec: any, idx: number) => (
                 <div key={idx} className="p-4 border rounded bg-white">
-                  <h2 className="font-medium mb-1">{to12Hour(rec.time)}</h2>
+                  <div className="flex items-center justify-between">
+                    <h2 className="font-medium">{to12Hour(rec.time)}</h2>
+                    <button
+                      className="text-sm px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+                      onClick={async () => {
+                        const allNames = windows.flatMap((w: any) => w.items.map((it: any) => it.name))
+                        const exclude = encodeURIComponent(allNames.join(','))
+                        const restrictions = encodeURIComponent((data.quiz?.restrictions || []).join(','))
+                        const pref = encodeURIComponent(data.quiz?.preference || 'balanced')
+                        const res = await fetch(`/api/snacks?type=${pref}&limit=4&exclude=${exclude}&restrictions=${restrictions}`)
+                        if (res.ok) {
+                          const js = await res.json()
+                          setWindows(prev => prev.map((r, i) => i === idx ? { ...r, items: js.items } : r))
+                        }
+                      }}
+                    >Show alternatives</button>
+                  </div>
                   <p className="text-sm text-slate-700">{rec.rationale}</p>
                   <div className="mt-2 grid gap-3 sm:grid-cols-2">
                     {rec.items.slice(0, 4).map((it: any, i: number) => (
-                      <SnackCard key={i} item={it} />
+                      <SnackCard
+                        key={i}
+                        item={it}
+                        onSwap={async () => {
+                          const allNames = windows.flatMap((w: any) => w.items.map((it: any) => it.name))
+                          const exclude = encodeURIComponent(allNames.join(','))
+                          const restrictions = encodeURIComponent((data.quiz?.restrictions || []).join(','))
+                          const pref = encodeURIComponent(data.quiz?.preference || 'balanced')
+                          const res = await fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&restrictions=${restrictions}`)
+                          if (res.ok) {
+                            const js = await res.json()
+                            const next = js.items?.[0]
+                            if (next) {
+                              setWindows(prev => prev.map((r, wi) => wi === idx ? { ...r, items: r.items.map((x: any, xi: number) => xi === i ? next : x) } : r))
+                            }
+                          }
+                        }}
+                      />
                     ))}
                   </div>
                 </div>
@@ -75,15 +111,19 @@ export default function Results() {
 
 function ShareControls({ sessionId }: { sessionId: string }) {
   const url = `${location.origin}/results/${sessionId}`
+  const shortId = sessionId?.slice(0, 8) || sessionId
+  const displayUrl = `${location.origin}/results/${shortId}…`
+  const [copied, setCopied] = useState(false)
   const copy = async () => {
-    try { await navigator.clipboard.writeText(url) } catch {}
+    try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1500) } catch {}
   }
   return (
     <div className="mt-2">
       <label htmlFor="share-url" className="block text-sm font-medium mb-1">Share link</label>
       <div className="flex items-center gap-2">
-        <input id="share-url" className="flex-1 border rounded px-3 py-2" value={url} readOnly />
-        <button onClick={copy} className="bg-emerald-600 text-white px-3 py-2 rounded-md">Copy link</button>
+        <input id="share-url" className="flex-1 border rounded px-3 py-2" value={displayUrl} readOnly />
+        <button onClick={copy} className="bg-emerald-600 text-white px-3 py-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700">Copy link</button>
+        {copied && <span className="text-sm text-slate-600" role="status" aria-live="polite">Copied!</span>}
       </div>
     </div>
   )}

@@ -1,0 +1,25 @@
+[
+  {"name":"Greek Yogurt","typeTags":["high-protein","balanced"],"allergens":["dairy"],"calories":120,"protein":15,"carbs":8,"fat":3,"imageSearch":["Greek yogurt"]},
+  {"name":"Cottage Cheese","typeTags":["high-protein","low-carb"],"allergens":["dairy"],"calories":110,"protein":13,"carbs":5,"fat":5,"imageSearch":["cottage cheese"]},
+  {"name":"Almonds","typeTags":["keto","low-carb","balanced"],"allergens":["nuts"],"calories":160,"protein":6,"carbs":6,"fat":14,"imageSearch":["almonds snack"]},
+  {"name":"Apple Peanut Butter","typeTags":["balanced"],"allergens":["nuts"],"calories":190,"protein":7,"carbs":22,"fat":8,"imageSearch":["apple with peanut butter","apple peanut butter slices"]},
+  {"name":"Cheese + Turkey Roll","typeTags":["keto","low-carb","high-protein"],"allergens":["dairy"],"calories":180,"protein":14,"carbs":2,"fat":12,"imageSearch":["turkey and cheese roll-up","turkey cheese pinwheels"]},
+  {"name":"Edamame","typeTags":["high-protein","balanced"],"calories":130,"protein":12,"carbs":10,"fat":5,"imageSearch":["edamame snack"]},
+  {"name":"Protein Shake","typeTags":["high-protein"],"calories":160,"protein":25,"carbs":6,"fat":3,"imageSearch":["protein shake"]},
+  {"name":"Beef Jerky","typeTags":["high-protein","keto","low-carb"],"calories":80,"protein":11,"carbs":3,"fat":2,"imageSearch":["beef jerky"]},
+  {"name":"Hard Boiled Eggs","typeTags":["high-protein","keto","low-carb"],"calories":140,"protein":12,"carbs":1,"fat":10,"imageSearch":["hard boiled eggs"]},
+  {"name":"Tuna Salad","typeTags":["high-protein","keto","low-carb"],"calories":180,"protein":20,"carbs":2,"fat":12,"imageSearch":["tuna salad snack"]},
+  {"name":"Avocado Snack","typeTags":["keto","low-carb"],"calories":160,"protein":2,"carbs":9,"fat":15,"imageSearch":["avocado slices"]},
+  {"name":"Olives","typeTags":["keto","low-carb"],"calories":40,"protein":0,"carbs":1,"fat":4,"imageSearch":["olives bowl"]},
+  {"name":"Pepperoni and Cheese","typeTags":["keto","low-carb"],"calories":200,"protein":10,"carbs":1,"fat":17,"imageSearch":["pepperoni cheese snack"]},
+  {"name":"Nuts Mix","typeTags":["low-carb","balanced"],"allergens":["nuts"],"calories":170,"protein":5,"carbs":8,"fat":14,"imageSearch":["trail mix nuts"]},
+  {"name":"Celery and Peanut Butter","typeTags":["low-carb","balanced"],"allergens":["nuts"],"calories":180,"protein":7,"carbs":8,"fat":14,"imageSearch":["celery peanut butter"]},
+  {"name":"Cheese Sticks","typeTags":["low-carb","keto"],"allergens":["dairy"],"calories":80,"protein":6,"carbs":1,"fat":6,"imageSearch":["cheese sticks"]},
+  {"name":"Boiled Eggs","typeTags":["low-carb","keto","high-protein"],"calories":140,"protein":12,"carbs":1,"fat":10,"imageSearch":["boiled eggs"]},
+  {"name":"Cucumber Slices and Hummus","typeTags":["low-carb","balanced"],"calories":150,"protein":6,"carbs":12,"fat":9,"imageSearch":["cucumber hummus"]},
+  {"name":"Yogurt Parfait","typeTags":["balanced"],"allergens":["dairy"],"calories":220,"protein":12,"carbs":30,"fat":6,"imageSearch":["yogurt parfait"]},
+  {"name":"Cheese and Crackers","typeTags":["balanced"],"allergens":["dairy"],"calories":210,"protein":9,"carbs":18,"fat":11,"imageSearch":["cheese crackers"]},
+  {"name":"Banana with Peanut Butter","typeTags":["balanced"],"allergens":["nuts"],"calories":220,"protein":7,"carbs":27,"fat":9,"imageSearch":["banana peanut butter"]},
+  {"name":"Trail Mix","typeTags":["balanced"],"allergens":["nuts"],"calories":210,"protein":5,"carbs":23,"fat":12,"imageSearch":["trail mix"]}
+]
+
