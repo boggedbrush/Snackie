@@ -18,24 +18,24 @@ export default function ComboPair({ item, onSwap, onDetails, onSwapBase, onSwapA
         <div className="space-y-2">
           <MiniCard name={base} imageUrl={item.baseImageUrl} />
           {onSwapBase && (
-            <button onClick={onSwapBase} className="text-xs px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">Swap base</button>
+            <button onClick={onSwapBase} className="text-xs px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-yellow-50">Swap base</button>
           )}
         </div>
         <div className="flex items-center justify-center text-yellow-700 font-bold select-none" aria-hidden>+</div>
         <div className="space-y-2">
           <MiniCard name={add} imageUrl={item.addImageUrl} />
           {onSwapAdd && (
-            <button onClick={onSwapAdd} className="text-xs px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">Swap add-on</button>
+            <button onClick={onSwapAdd} className="text-xs px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-yellow-50">Swap add-on</button>
           )}
         </div>
       </div>
       <p className="mt-2 text-sm text-slate-700">{nutrString(item)}</p>
       <div className="flex items-center gap-2 justify-end mt-3">
         {onSwap && (
-          <button onClick={onSwap} className="text-sm px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">Swap combo</button>
+          <button onClick={onSwap} className="text-sm px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-yellow-50">Swap combo</button>
         )}
         {onDetails && (
-          <button onClick={onDetails} className="text-sm px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">Details</button>
+          <button onClick={onDetails} className="text-sm px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-yellow-50">Details</button>
         )}
       </div>
     </div>
@@ -45,7 +45,7 @@ export default function ComboPair({ item, onSwap, onDetails, onSwapBase, onSwapA
 function MiniCard({ name, imageUrl }: { name: string, imageUrl?: string }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="w-16 h-16 rounded overflow-hidden ring-1 ring-slate-200 bg-slate-100">
+      <div className="w-16 h-16 rounded overflow-hidden ring-1 ring-slate-200 bg-slate-100 ring-banana-soft">
         {imageUrl ? <img src={imageUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full" />}
       </div>
       <div className="font-medium leading-tight text-slate-900">{name}</div>

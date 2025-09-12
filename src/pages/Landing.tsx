@@ -7,10 +7,9 @@ export default function Landing() {
       <p className="text-slate-700 max-w-prose">
         Take a quick one-time quiz to get snack timing and suggestions tailored to your meal times and preferences.
       </p>
-      <Link to="/quiz" className="inline-block bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700">
+      <Link to="/quiz" className="inline-block btn-banana px-4 py-2 rounded-md">
         Start the quiz
       </Link>
     </section>
   )
 }
-

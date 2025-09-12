@@ -1,0 +1,44 @@
+/* Banana Theme: light leafy background and yellow accents */
+:root {
+  --banana-yellow: #facc15; /* tailwind yellow-400 */
+  --banana-yellow-600: #ca8a04; /* yellow-600 for hover */
+  --banana-ink: #1f2937; /* slate-800 */
+  --banana-bg: #f3fce8; /* light greenish backdrop */
+  --banana-leaf: #d9f99d; /* lime-200 */
+}
+
+/* Background: soft gradient with subtle leaf pattern */
+body.banana-bg {
+  background-color: var(--banana-bg);
+  background-image:
+    radial-gradient(1200px 600px at 10% -10%, rgba(255,255,255,0.7), rgba(255,255,255,0) 60%),
+    radial-gradient(1000px 500px at 90% 0%, rgba(255,255,255,0.6), rgba(255,255,255,0) 60%),
+    url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160" fill="none"><g opacity="0.25"><path d="M20 120c20-40 60-60 120-60-40 20-60 60-60 120C60 140 40 120 20 120Z" fill="%23d9f99d"/></g></svg>');
+  background-size: auto, auto, 160px 160px;
+}
+
+/* Banana brand mark: a playful banana accent before the word */
+.brand-snackie {
+  position: relative;
+  color: var(--banana-ink);
+}
+.brand-snackie::before {
+  content: '🍌';
+  position: absolute;
+  left: -1.75rem;
+  top: -0.2rem;
+  transform: rotate(-10deg);
+  font-size: 1.5rem;
+}
+
+/* Primary banana button */
+.btn-banana {
+  background-color: var(--banana-yellow);
+  color: var(--banana-ink);
+}
+.btn-banana:hover { background-color: #f59e0b; }
+.btn-banana:focus-visible { outline: 2px solid var(--banana-yellow-600); outline-offset: 2px; }
+
+/* Card ring tweak so images pop on green backdrop */
+.ring-banana-soft { box-shadow: 0 0 0 1px rgba(31,41,55,0.06) inset; }
+

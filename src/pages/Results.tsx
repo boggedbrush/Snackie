@@ -51,7 +51,7 @@ export default function Results() {
                   try { sessionStorage.setItem('snackie.lastQuiz', JSON.stringify(data.quiz)) } catch {}
                   navigate('/quiz')
                 }}
-                className="text-sm text-emerald-700 underline"
+                className="text-sm text-yellow-700 underline"
               >Edit answers</button>
             </div>
             <div className="space-y-4" aria-live="polite" aria-busy={loading}>
@@ -60,7 +60,7 @@ export default function Results() {
                   <div className="flex items-center justify-between">
                     <h2 className="font-medium">{to12Hour(rec.time)}</h2>
                     <button
-                      className="text-sm px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+                      className="text-sm px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-yellow-50"
                       onClick={async () => {
                         const allNames = windows.flatMap((w: any) => w.items.map((it: any) => it.name))
                         const exclude = encodeURIComponent(allNames.join(','))
@@ -187,8 +187,6 @@ export default function Results() {
 
 function ShareControls({ sessionId }: { sessionId: string }) {
   const url = `${location.origin}/results/${sessionId}`
-  const shortId = sessionId?.slice(0, 8) || sessionId
-  const displayUrl = `${location.origin}/results/${shortId}…`
   const [copied, setCopied] = useState(false)
   const copy = async () => {
     try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 1500) } catch {}
@@ -196,9 +194,14 @@ function ShareControls({ sessionId }: { sessionId: string }) {
   return (
     <div className="mt-2">
       <label htmlFor="share-url" className="block text-sm font-medium mb-1">Share link</label>
-      <div className="flex items-center gap-2">
-        <input id="share-url" className="flex-1 border rounded px-3 py-2" value={displayUrl} readOnly />
-        <button onClick={copy} className="bg-emerald-600 text-white px-3 py-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700">Copy link</button>
+      <div className="flex items-center gap-2 w-full">
+        <input
+          id="share-url"
+          className="flex-1 min-w-0 border rounded px-3 py-2"
+          value={url}
+          readOnly
+        />
+        <button onClick={copy} className="btn-banana px-3 py-2 rounded-md">Copy link</button>
         {copied && <span className="text-sm text-slate-600" role="status" aria-live="polite">Copied!</span>}
       </div>
     </div>

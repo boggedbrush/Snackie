@@ -26,9 +26,9 @@ export default function SnackCard({ item, onSwap }: { item: SnackItem, onSwap?: 
           type="button"
           aria-label={`View details for ${item.name}`}
           onClick={() => setOpen(true)}
-          className="shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 rounded"
+          className="shrink-0 focus:outline-none rounded"
         >
-          <div className="w-16 h-16 rounded overflow-hidden ring-1 ring-slate-200 bg-slate-100">
+          <div className="w-16 h-16 rounded overflow-hidden ring-1 ring-slate-200 bg-slate-100 ring-banana-soft">
             {item.imageUrl ? (
               <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
             ) : (
@@ -46,12 +46,12 @@ export default function SnackCard({ item, onSwap }: { item: SnackItem, onSwap?: 
           {onSwap && (
             <button
               onClick={() => onSwap()}
-              className="text-sm px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+              className="text-sm px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-yellow-50"
             >Swap</button>
           )}
           <button
             onClick={() => setOpen(true)}
-            className="text-sm px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+            className="text-sm px-2 py-1 rounded border border-slate-300 text-slate-700 hover:bg-yellow-50"
           >Details</button>
         </div>
       </div>
@@ -74,7 +74,7 @@ export default function SnackCard({ item, onSwap }: { item: SnackItem, onSwap?: 
               </p>
             )}
             <div className="mt-4 text-right">
-              <button onClick={() => setOpen(false)} className="px-3 py-1 rounded bg-slate-900 text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600">Close</button>
+              <button onClick={() => setOpen(false)} className="px-3 py-1 rounded btn-banana">Close</button>
             </div>
           </div>
         </div>

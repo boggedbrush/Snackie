@@ -8,7 +8,7 @@ export default function App() {
         Skip to content
       </a>
       <header className="flex items-center justify-between mb-6">
-        <Link to="/" className="font-semibold text-lg">Snackie</Link>
+        <Link to="/" className="brand-snackie font-black text-2xl">Snackie</Link>
         <nav className="text-sm space-x-4">
           <Link className={navClass(pathname === '/')} to="/">Home</Link>
           <Link className={navClass(pathname.startsWith('/quiz'))} to="/quiz">Quiz</Link>
@@ -32,5 +32,5 @@ export default function App() {
 }
 
 function navClass(active: boolean) {
-  return `px-2 py-1 rounded ${active ? 'text-white bg-slate-900' : 'text-slate-700 hover:text-slate-900'}`
+  return `px-2 py-1 rounded ${active ? 'bg-yellow-400 text-slate-900' : 'text-slate-700 hover:text-slate-900'}`
 }
