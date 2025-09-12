@@ -17,18 +17,40 @@ export type Component = {
 
 let componentsCache: Component[] | null = null
 let rulesCache: Record<string, string[]> | null = null
+let componentsMtime = 0
+let rulesMtime = 0
 
 function loadComponents(): Component[] {
-  if (componentsCache) return componentsCache
   const p = path.join(process.cwd(), 'data', 'components.json')
-  componentsCache = JSON.parse(fs.readFileSync(p, 'utf-8'))
+  try {
+    const stat = fs.statSync(p)
+    const mtime = stat.mtimeMs
+    const isProd = process.env.NODE_ENV === 'production'
+    if (!componentsCache || componentsMtime !== mtime || !isProd) {
+      componentsCache = JSON.parse(fs.readFileSync(p, 'utf-8'))
+      componentsMtime = mtime
+    }
+  } catch {
+    componentsCache = JSON.parse(fs.readFileSync(p, 'utf-8'))
+    componentsMtime = Date.now()
+  }
   return componentsCache!
 }
 
 function loadRules(): Record<string, string[]> {
-  if (rulesCache) return rulesCache
   const p = path.join(process.cwd(), 'data', 'combo_rules.json')
-  rulesCache = JSON.parse(fs.readFileSync(p, 'utf-8'))
+  try {
+    const stat = fs.statSync(p)
+    const mtime = stat.mtimeMs
+    const isProd = process.env.NODE_ENV === 'production'
+    if (!rulesCache || rulesMtime !== mtime || !isProd) {
+      rulesCache = JSON.parse(fs.readFileSync(p, 'utf-8'))
+      rulesMtime = mtime
+    }
+  } catch {
+    rulesCache = JSON.parse(fs.readFileSync(p, 'utf-8'))
+    rulesMtime = Date.now()
+  }
   return rulesCache!
 }
 

@@ -1,8 +1,59 @@
 {
-  "base.yogurt": ["add.granola", "add.fruit", "add.seeds", "add.nuts"],
-  "base.cottage": ["add.fruit", "add.seeds", "add.nuts"],
-  "base.celery": ["add.dip_nut_butter"],
-  "base.apple": ["add.dip_nut_butter", "add.nuts"],
-  "base.turkey": ["add.cheese"]
+  "base.yogurt": [
+    "add.granola",
+    "add.fruit",
+    "add.seeds",
+    "add.nuts",
+    "add.dried_fruit"
+  ],
+  "base.cottage": [
+    "add.granola",
+    "add.fruit",
+    "add.seeds",
+    "add.nuts",
+    "add.dip_nut_butter"
+  ],
+  "base.celery": [
+    "add.dip_nut_butter",
+    "add.cheese"
+  ],
+  "base.apple": [
+    "add.dip_nut_butter",
+    "add.nuts",
+    "add.granola",
+    "add.dried_fruit"
+  ],
+  "base.turkey": [
+    "add.cheese",
+    "add.seeds"
+  ],
+  "base.avocado": [
+    "add.seeds",
+    "add.nuts",
+    "add.olive"
+  ],
+  "base.cucumber": [
+    "add.dip_hummus",
+    "add.cheese",
+    "add.seeds"
+  ],
+  "base.banana": [
+    "add.dip_nut_butter",
+    "add.granola",
+    "add.nuts"
+  ],
+  "base.ricecake": [
+    "add.cheese",
+    "add.dip_nut_butter",
+    "add.fruit",
+    "add.nuts",
+    "add.granola"
+  ],
+  "base.oatmeal": [
+    "add.fruit",
+    "add.dried_fruit",
+    "add.nuts",
+    "add.seeds",
+    "add.granola"
+  ]
 }
-

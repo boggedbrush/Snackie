@@ -13,12 +13,25 @@ export type CatalogSnack = {
 }
 
 let cache: CatalogSnack[] | null = null
+let cacheMtime = 0
 
 export function loadCatalog(): CatalogSnack[] {
-  if (cache) return cache
   const p = path.join(process.cwd(), 'data', 'snacks.json')
-  const raw = fs.readFileSync(p, 'utf-8')
-  cache = JSON.parse(raw)
+  try {
+    const stat = fs.statSync(p)
+    const mtime = stat.mtimeMs
+    const isProd = process.env.NODE_ENV === 'production'
+    if (!cache || cacheMtime !== mtime || !isProd) {
+      const raw = fs.readFileSync(p, 'utf-8')
+      cache = JSON.parse(raw)
+      cacheMtime = mtime
+    }
+  } catch {
+    // Fallback: attempt fresh load without stat if something odd happens
+    const raw = fs.readFileSync(p, 'utf-8')
+    cache = JSON.parse(raw)
+    cacheMtime = Date.now()
+  }
   return cache!
 }
 
@@ -33,4 +46,3 @@ export function search(term: string): CatalogSnack[] {
   const t = term.toLowerCase()
   return list.filter(s => s.name.toLowerCase().includes(t) || s.imageSearch?.some(q => q.toLowerCase().includes(t)))
 }
-
