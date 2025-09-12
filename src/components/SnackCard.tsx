@@ -14,12 +14,13 @@ export type SnackItem = {
     author?: string
     license?: string
   }
+  isCombo?: boolean
 }
 
 export default function SnackCard({ item, onSwap }: { item: SnackItem, onSwap?: () => Promise<void> | void }) {
   const [open, setOpen] = useState(false)
   return (
-    <div className="border rounded p-3 bg-white">
+    <div className={`border rounded p-3 ${item.isCombo ? 'bg-yellow-50 border-yellow-300' : 'bg-white'}`}>
       <div className="flex items-start gap-3">
         <button
           type="button"

@@ -2,6 +2,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { to12Hour } from '../lib/format'
 import SnackCard from '../components/SnackCard'
+import ComboPair from '../components/ComboPair'
 
 export default function Results() {
   const { sessionId = '' } = useParams()
@@ -65,37 +66,112 @@ export default function Results() {
                         const exclude = encodeURIComponent(allNames.join(','))
                         const restrictions = encodeURIComponent((data.quiz?.restrictions || []).join(','))
                         const pref = encodeURIComponent(data.quiz?.preference || 'balanced')
-                        const res = await fetch(`/api/snacks?type=${pref}&limit=4&exclude=${exclude}&restrictions=${restrictions}`)
-                        if (res.ok) {
-                          const js = await res.json()
-                          setWindows(prev => prev.map((r, i) => i === idx ? { ...r, items: js.items } : r))
+                        // fetch one combo and two singles
+                        const [resCombo, resSingles] = await Promise.all([
+                          fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&restrictions=${restrictions}&combine=combo`),
+                          fetch(`/api/snacks?type=${pref}&limit=2&exclude=${exclude}&restrictions=${restrictions}&side=true`)
+                        ])
+                        if (resCombo.ok && resSingles.ok) {
+                          const combo = (await resCombo.json()).items?.[0]
+                          const singles = (await resSingles.json()).items || []
+                          if (combo) {
+                            setWindows(prev => prev.map((r, i) => i === idx ? { ...r, items: [combo, ...singles] } : r))
+                          }
                         }
                       }}
                     >Show alternatives</button>
                   </div>
                   <p className="text-sm text-slate-700">{rec.rationale}</p>
-                  <div className="mt-2 grid gap-3 sm:grid-cols-2">
-                    {rec.items.slice(0, 4).map((it: any, i: number) => (
-                      <SnackCard
-                        key={i}
-                        item={it}
-                        onSwap={async () => {
-                          const allNames = windows.flatMap((w: any) => w.items.map((it: any) => it.name))
-                          const exclude = encodeURIComponent(allNames.join(','))
-                          const restrictions = encodeURIComponent((data.quiz?.restrictions || []).join(','))
-                          const pref = encodeURIComponent(data.quiz?.preference || 'balanced')
-                          const res = await fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&restrictions=${restrictions}`)
-                          if (res.ok) {
-                            const js = await res.json()
-                            const next = js.items?.[0]
-                            if (next) {
-                              setWindows(prev => prev.map((r, wi) => wi === idx ? { ...r, items: r.items.map((x: any, xi: number) => xi === i ? next : x) } : r))
+                  {(() => {
+                    const combo = rec.items.find((x: any) => x.isCombo)
+                    const singles = rec.items.filter((x: any) => !x.isCombo).slice(0, 2)
+                    const renderCombo = combo ? (
+                      <div className="mb-3">
+                        <ComboPair
+                          item={combo}
+                          onSwap={async () => {
+                            const allNames = windows.flatMap((w: any) => w.items.map((it: any) => it.name))
+                            const exclude = encodeURIComponent(allNames.join(','))
+                            const restrictions = encodeURIComponent((data.quiz?.restrictions || []).join(','))
+                            const pref = encodeURIComponent(data.quiz?.preference || 'balanced')
+                            const res = await fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&restrictions=${restrictions}&combine=combo`)
+                            if (res.ok) {
+                              const js = await res.json()
+                              const next = js.items?.[0]
+                              if (next) {
+                                setWindows(prev => prev.map((r, wi) => wi === idx ? { ...r, items: [next, ...r.items.filter((x: any) => !x.isCombo)] } : r))
+                              }
                             }
-                          }
-                        }}
-                      />
-                    ))}
-                  </div>
+                          }}
+                          onSwapBase={async () => {
+                            const allNames = windows.flatMap((w: any) => w.items.map((it: any) => it.name))
+                            const exclude = encodeURIComponent(allNames.join(','))
+                            const restrictions = encodeURIComponent((data.quiz?.restrictions || []).join(','))
+                            const pref = encodeURIComponent(data.quiz?.preference || 'balanced')
+                            const addName = encodeURIComponent((combo.addNames?.[0]) || '')
+                            const res = await fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&restrictions=${restrictions}&combine=combo&addon=${addName}`)
+                            if (res.ok) {
+                              const js = await res.json()
+                              const next = js.items?.[0]
+                              if (next) {
+                                setWindows(prev => prev.map((r, wi) => wi === idx ? { ...r, items: [next, ...r.items.filter((x: any) => !x.isCombo)] } : r))
+                              }
+                            }
+                          }}
+                          onSwapAdd={async () => {
+                            const allNames = windows.flatMap((w: any) => w.items.map((it: any) => it.name))
+                            const exclude = encodeURIComponent(allNames.join(','))
+                            const restrictions = encodeURIComponent((data.quiz?.restrictions || []).join(','))
+                            const pref = encodeURIComponent(data.quiz?.preference || 'balanced')
+                            const baseName = encodeURIComponent((combo.baseName) || '')
+                            const res = await fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&restrictions=${restrictions}&combine=combo&base=${baseName}`)
+                            if (res.ok) {
+                              const js = await res.json()
+                              const next = js.items?.[0]
+                              if (next) {
+                                setWindows(prev => prev.map((r, wi) => wi === idx ? { ...r, items: [next, ...r.items.filter((x: any) => !x.isCombo)] } : r))
+                              }
+                            }
+                          }}
+                        />
+                      </div>
+                    ) : null
+
+                    const renderSingles = (
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {singles.map((it: any, i: number) => (
+                          <SnackCard
+                            key={i}
+                            item={it}
+                            onSwap={async () => {
+                              const allNames = windows.flatMap((w: any) => w.items.map((it: any) => it.name))
+                              const exclude = encodeURIComponent(allNames.join(','))
+                              const restrictions = encodeURIComponent((data.quiz?.restrictions || []).join(','))
+                              const pref = encodeURIComponent(data.quiz?.preference || 'balanced')
+                              const res = await fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&restrictions=${restrictions}&side=true`)
+                              if (res.ok) {
+                                const js = await res.json()
+                                const next = js.items?.[0]
+                                if (next) {
+                                  setWindows(prev => prev.map((r, wi) => wi === idx ? { ...r, items: [
+                                    ...(r.items.find((x: any) => x.isCombo) ? [r.items.find((x: any) => x.isCombo)!] : []),
+                                    ...r.items.filter((x: any) => !x.isCombo).map((x: any, xi: number) => xi === i ? next : x)
+                                  ] } : r))
+                                }
+                              }
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )
+
+                    return (
+                      <div>
+                        {renderCombo}
+                        {renderSingles}
+                      </div>
+                    )
+                  })()}
                 </div>
               ))}
             </div>

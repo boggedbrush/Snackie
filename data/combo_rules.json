@@ -1,0 +1,8 @@
+{
+  "base.yogurt": ["add.granola", "add.fruit", "add.seeds", "add.nuts"],
+  "base.cottage": ["add.fruit", "add.seeds", "add.nuts"],
+  "base.celery": ["add.dip_nut_butter"],
+  "base.apple": ["add.dip_nut_butter", "add.nuts"],
+  "base.turkey": ["add.cheese"]
+}
+

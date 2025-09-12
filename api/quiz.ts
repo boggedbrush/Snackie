@@ -1,7 +1,7 @@
 import { computeSnackWindows } from '../src/lib/recommendation'
 import { saveSession } from './_store'
 import { imageFor } from './_images'
-import { byPreference, CatalogSnack } from './_catalog'
+import { generateSnacks } from './_compose'
 
 type QuizBody = {
   breakfastTime: string
@@ -17,9 +17,7 @@ function svgPlaceholder(label: string, bg = '#e2e8f0', fg = '#334155') {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
 }
 
-function catalogForPref(pref: string): CatalogSnack[] {
-  return byPreference(pref)
-}
+// no-op: combos generated dynamically
 
 export default async function handler(req: Request): Promise<Response> {
   if (req.method !== 'POST') {
@@ -33,49 +31,75 @@ export default async function handler(req: Request): Promise<Response> {
   const sessionId = crypto.randomUUID()
   const createdAt = new Date().toISOString()
   const windows = computeSnackWindows(body.breakfastTime, body.lunchTime, body.dinnerTime)
-  const baseItems = catalogForPref(body.preference)
-  const restrictions = (body.restrictions || []).map((s: string) => s.toLowerCase())
-  const filtered = baseItems.filter((it: any) => {
-    const name = it.name.toLowerCase()
-    const tags: string[] = Array.isArray(it.allergens) ? it.allergens : []
-    return !restrictions.some(r => name.includes(r) || tags.includes(r))
-  })
-  const chosen = filtered.length ? filtered : baseItems
-  const enriched = await Promise.all(chosen.map(async (it) => {
-    const term = (it as any).imageSearch?.[0] || it.name
-    const img = await imageFor(term)
-    return { ...it, imageUrl: img?.imageUrl || svgPlaceholder(it.name), credit: img?.credit }
-  }))
-  // Build windows sequentially with uniqueness across windows and supplements
-  const used = new Set<string>()
-  async function buildItems(count: number): Promise<any[]> {
-    const out: any[] = []
-    for (const it of enriched) {
-      const key = it.name.toLowerCase()
-      if (used.has(key)) continue
-      out.push(it)
-      used.add(key)
-      if (out.length >= count) break
-    }
-    if (out.length < count) {
-      const pool = catalogForPref(body.preference)
-      for (const s of pool) {
-        const term = s.imageSearch?.[0] || s.name
-        const key = s.name.toLowerCase()
-        if (used.has(key)) continue
-        if (body.restrictions?.some(r => key.includes(String(r).toLowerCase()) || (s.allergens||[]).map(a=>a.toLowerCase()).includes(String(r).toLowerCase()))) continue
-        const img = await imageFor(term)
-        out.push({ name: s.name, imageUrl: img?.imageUrl || svgPlaceholder(s.name), credit: img?.credit, calories: s.calories, protein: s.protein, carbs: s.carbs, fat: s.fat })
-        used.add(key)
-        if (out.length >= count) break
+  const restrictions = body.restrictions || []
+  // Pre-generate pools to ensure we have enough unique items
+  const combosPool = await generateSnacks({ preference: body.preference, restrictions, limit: 6, seed: sessionId + ':combo', combine: true, minAdds: 1, maxAdds: 1 })
+  const singlesPool = await generateSnacks({ preference: body.preference, restrictions, limit: 10, seed: sessionId + ':single', combine: false, allowBases: false, sideOnly: true })
+  async function enrich(list: any[]) {
+    return Promise.all(list.map(async (it) => {
+      const mainImg = await imageFor(it.imageSearch)
+      let baseImageUrl: string | undefined
+      let addImageUrl: string | undefined
+      if (it.isCombo) {
+        if (it.baseName) {
+          const bi = await imageFor(it.baseName)
+          baseImageUrl = bi?.imageUrl
+        }
+        const add0 = Array.isArray(it.addNames) ? it.addNames[0] : undefined
+        if (add0) {
+          const ai = await imageFor(add0)
+          addImageUrl = ai?.imageUrl
+        }
       }
-    }
-    return out
+      return {
+        name: it.name,
+        calories: it.calories,
+        protein: it.protein,
+        carbs: it.carbs,
+        fat: it.fat,
+        imageUrl: mainImg?.imageUrl || svgPlaceholder(it.name),
+        credit: mainImg?.credit,
+        isCombo: !!it.isCombo,
+        baseName: it.baseName,
+        baseCategory: it.baseCategory,
+        addNames: it.addNames,
+        baseImageUrl,
+        addImageUrl,
+      }
+    }))
   }
+  const combosEnriched = await enrich(combosPool)
+  const singlesEnriched = await enrich(singlesPool)
+  // Track uniqueness across all windows
+  const used = new Set<string>()
 
   const recommendations: any[] = []
   for (const w of windows) {
-    const items = await buildItems(4)
+    const items: any[] = []
+    // two combos with distinct base categories within this window
+    const usedBasesWindow = new Set<string>()
+    for (const it of combosEnriched) {
+      const key = it.name.toLowerCase()
+      const baseCat = (it as any).baseCategory || ''
+      if (used.has(key) || (baseCat && usedBasesWindow.has(baseCat))) continue
+      items.push(it)
+      used.add(key)
+      if (baseCat) usedBasesWindow.add(baseCat)
+      if (items.length >= 2) break
+    }
+    // two singles (non-bases)
+    for (const it of singlesEnriched) {
+      const key = it.name.toLowerCase()
+      if (used.has(key)) continue
+      items.push(it)
+      used.add(key)
+      if (items.length >= 4) break
+    }
+    // Fallback if not enough
+    while (items.length < 4) {
+      items.push(singlesEnriched.find(x => !used.has(x.name.toLowerCase())) || combosEnriched.find(x => !used.has(x.name.toLowerCase())) || combosEnriched[0])
+      used.add(items[items.length - 1].name.toLowerCase())
+    }
     recommendations.push({ time: w.time, items, rationale: 'Snack to bridge meal gap with your preference.' })
   }
   const payload = {

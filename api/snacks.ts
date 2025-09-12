@@ -5,7 +5,7 @@ function svgPlaceholder(label: string, bg = '#e2e8f0', fg = '#334155') {
 }
 
 import { imageFor } from './_images'
-import { byPreference, search, CatalogSnack } from './_catalog'
+import { generateSnacks } from './_compose'
 
 export default async function handler(req: Request): Promise<Response> {
   const { searchParams } = new URL(req.url)
@@ -21,30 +21,50 @@ export default async function handler(req: Request): Promise<Response> {
     .map(s => s.trim().toLowerCase())
     .filter(Boolean)
 
-  const base: CatalogSnack[] = q ? search(q) : byPreference(type)
-  const items = base
-    .filter(s => {
-      const n = s.name.toLowerCase()
-      if (excludes.some(x => n.includes(x))) return false
-      const allergens = (s.allergens || []).map(a => a.toLowerCase())
-      if (restrictions.some(r => n.includes(r) || allergens.includes(r))) return false
-      return true
-    })
-    .slice(0, Math.max(limit * 3, limit))
+  const combineParam = (searchParams.get('combine') || '').toLowerCase()
+  const wantCombos = combineParam === 'true' || combineParam === 'combo'
+  const lockBaseName = searchParams.get('base') || undefined
+  const lockAddName = searchParams.get('addon') || searchParams.get('add') || undefined
+  const sideOnly = (searchParams.get('side') || '').toLowerCase() === 'true'
+  const gen = await generateSnacks({
+    preference: type,
+    restrictions,
+    limit: limit * 2,
+    seed: String(Date.now()),
+    exclude: excludes,
+    combine: wantCombos,
+    minAdds: 1,
+    maxAdds: 1,
+    allowBases: !wantCombos && true,
+    lockBaseName,
+    lockAddName,
+    sideOnly: !wantCombos && sideOnly,
+  })
 
   const results = await Promise.all(
-    items.map(async (s) => {
-      const term = s.imageSearch?.[0] || s.name
-      const img = await imageFor(term)
+    gen.slice(0, limit).map(async (s) => {
+      const main = await imageFor(s.imageSearch)
+      let baseImageUrl: string | undefined
+      let addImageUrl: string | undefined
+      if (s.isCombo) {
+        if (s.baseName) baseImageUrl = (await imageFor(s.baseName))?.imageUrl
+        const add0 = Array.isArray((s as any).addNames) ? (s as any).addNames[0] : undefined
+        if (add0) addImageUrl = (await imageFor(add0))?.imageUrl
+      }
       return {
         name: s.name,
         sourceApiId: '',
-        imageUrl: img?.imageUrl || svgPlaceholder(s.name),
+        imageUrl: main?.imageUrl || svgPlaceholder(s.name),
         calories: s.calories,
         protein: s.protein,
         carbs: s.carbs,
         fat: s.fat,
-        credit: img?.credit || undefined,
+        credit: main?.credit || undefined,
+        isCombo: s.isCombo,
+        baseName: (s as any).baseName,
+        addNames: (s as any).addNames,
+        baseImageUrl,
+        addImageUrl,
       }
     })
   )

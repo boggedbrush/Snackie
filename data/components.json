@@ -1,0 +1,23 @@
+[
+  {"name":"Greek Yogurt","category":"base.yogurt","isBase":true,"typeTags":["high-protein","balanced"],"allergens":["dairy"],"calories":120,"protein":15,"carbs":8,"fat":3,"imageSearch":["greek yogurt"]},
+  {"name":"Cottage Cheese","category":"base.cottage","isBase":true,"typeTags":["high-protein","low-carb"],"allergens":["dairy"],"calories":110,"protein":13,"carbs":5,"fat":5,"imageSearch":["cottage cheese"]},
+  {"name":"Celery Sticks","category":"base.celery","isBase":true,"typeTags":["low-carb","balanced"],"calories":10,"protein":0,"carbs":2,"fat":0,"imageSearch":["celery sticks"]},
+  {"name":"Apple Slices","category":"base.apple","isBase":true,"typeTags":["balanced"],"calories":95,"protein":0,"carbs":25,"fat":0,"imageSearch":["apple slices"]},
+  {"name":"Turkey Slices","category":"base.turkey","isBase":true,"typeTags":["high-protein","keto","low-carb"],"calories":120,"protein":20,"carbs":2,"fat":3,"imageSearch":["turkey slices"]},
+
+  {"name":"Granola","category":"add.granola","typeTags":["balanced"],"calories":140,"protein":3,"carbs":22,"fat":5,"imageSearch":["granola"]},
+  {"name":"Peanut Butter","category":"add.dip_nut_butter","typeTags":["balanced"],"allergens":["nuts"],"calories":190,"protein":7,"carbs":8,"fat":16,"imageSearch":["peanut butter"]},
+  {"name":"Almond Butter","category":"add.dip_nut_butter","typeTags":["balanced"],"allergens":["nuts"],"calories":190,"protein":7,"carbs":7,"fat":17,"imageSearch":["almond butter"]},
+  {"name":"Blueberries","category":"add.fruit","typeTags":["balanced"],"calories":85,"protein":1,"carbs":21,"fat":0,"imageSearch":["blueberries"]},
+  {"name":"Strawberries","category":"add.fruit","typeTags":["balanced"],"calories":50,"protein":1,"carbs":12,"fat":0,"imageSearch":["strawberries"]},
+  {"name":"Chia Seeds","category":"add.seeds","typeTags":["balanced","high-protein"],"calories":60,"protein":2,"carbs":5,"fat":4,"imageSearch":["chia seeds"]},
+  {"name":"Almonds","category":"add.nuts","typeTags":["keto","low-carb","balanced"],"allergens":["nuts"],"calories":160,"protein":6,"carbs":6,"fat":14,"imageSearch":["almonds"]},
+  {"name":"Cheese Slices","category":"add.cheese","typeTags":["keto","low-carb","high-protein"],"allergens":["dairy"],"calories":110,"protein":7,"carbs":1,"fat":9,"imageSearch":["cheese slices"]},
+
+  {"name":"Beef Jerky","category":"side.protein","typeTags":["high-protein","keto","low-carb"],"calories":80,"protein":11,"carbs":3,"fat":2,"imageSearch":["beef jerky snack"]},
+  {"name":"Protein Bar","category":"side.bar","typeTags":["high-protein"],"allergens":["nuts","soy"],"calories":200,"protein":20,"carbs":22,"fat":6,"imageSearch":["protein bar"]},
+  {"name":"Air-Popped Popcorn","category":"side.crunch","typeTags":["low-calorie","vegan"],"calories":62,"protein":2,"carbs":12,"fat":0.6,"imageSearch":["air popped popcorn"]},
+  {"name":"Roasted Chickpeas","category":"side.legume","typeTags":["high-protein","vegan"],"allergens":["legumes"],"calories":120,"protein":6,"carbs":18,"fat":2,"imageSearch":["roasted chickpeas"]},
+  {"name":"Seaweed Snacks","category":"side.seaweed","typeTags":["low-carb","vegan"],"calories":25,"protein":1,"carbs":1,"fat":1.5,"imageSearch":["seaweed snacks"]},
+  {"name":"Dark Chocolate (70% cacao)","category":"side.sweet","typeTags":["balanced"],"allergens":["soy"],"calories":170,"protein":2,"carbs":13,"fat":12,"imageSearch":["dark chocolate 70%"]}
+]
