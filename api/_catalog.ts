@@ -1,5 +1,4 @@
-import fs from 'fs'
-import path from 'path'
+import snacksData from '../data/snacks.json'
 
 export type CatalogSnack = {
   name: string
@@ -13,24 +12,10 @@ export type CatalogSnack = {
 }
 
 let cache: CatalogSnack[] | null = null
-let cacheMtime = 0
 
 export function loadCatalog(): CatalogSnack[] {
-  const p = path.join(process.cwd(), 'data', 'snacks.json')
-  try {
-    const stat = fs.statSync(p)
-    const mtime = stat.mtimeMs
-    const isProd = process.env.NODE_ENV === 'production'
-    if (!cache || cacheMtime !== mtime || !isProd) {
-      const raw = fs.readFileSync(p, 'utf-8')
-      cache = JSON.parse(raw)
-      cacheMtime = mtime
-    }
-  } catch {
-    // Fallback: attempt fresh load without stat if something odd happens
-    const raw = fs.readFileSync(p, 'utf-8')
-    cache = JSON.parse(raw)
-    cacheMtime = Date.now()
+  if (!cache) {
+    cache = (snacksData as any as CatalogSnack[])
   }
   return cache!
 }

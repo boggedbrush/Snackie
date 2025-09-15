@@ -1,4 +1,10 @@
-const CACHE_TTL = Number(process.env.CACHE_TTL || 300_000) // 5 minutes
+const DEFAULT_CACHE_TTL = 300_000 // 5 minutes
+let CACHE_TTL = DEFAULT_CACHE_TTL
+
+export function setCacheTtl(ms: number) {
+  const n = Number(ms)
+  if (Number.isFinite(n) && n >= 0) CACHE_TTL = n
+}
 
 type Credit = {
   source: 'Wikimedia Commons' | 'Open Food Facts'
@@ -80,4 +86,3 @@ async function fromOFF(term: string): Promise<ImageResult> {
     return null
   }
 }
-

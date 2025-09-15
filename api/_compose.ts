@@ -1,6 +1,5 @@
-import fs from 'fs'
-import path from 'path'
-import { imageFor } from './_images'
+import componentsData from '../data/components.json'
+import rulesData from '../data/combo_rules.json'
 
 export type Component = {
   name: string
@@ -17,39 +16,17 @@ export type Component = {
 
 let componentsCache: Component[] | null = null
 let rulesCache: Record<string, string[]> | null = null
-let componentsMtime = 0
-let rulesMtime = 0
 
 function loadComponents(): Component[] {
-  const p = path.join(process.cwd(), 'data', 'components.json')
-  try {
-    const stat = fs.statSync(p)
-    const mtime = stat.mtimeMs
-    const isProd = process.env.NODE_ENV === 'production'
-    if (!componentsCache || componentsMtime !== mtime || !isProd) {
-      componentsCache = JSON.parse(fs.readFileSync(p, 'utf-8'))
-      componentsMtime = mtime
-    }
-  } catch {
-    componentsCache = JSON.parse(fs.readFileSync(p, 'utf-8'))
-    componentsMtime = Date.now()
+  if (!componentsCache) {
+    componentsCache = (componentsData as any as Component[])
   }
   return componentsCache!
 }
 
 function loadRules(): Record<string, string[]> {
-  const p = path.join(process.cwd(), 'data', 'combo_rules.json')
-  try {
-    const stat = fs.statSync(p)
-    const mtime = stat.mtimeMs
-    const isProd = process.env.NODE_ENV === 'production'
-    if (!rulesCache || rulesMtime !== mtime || !isProd) {
-      rulesCache = JSON.parse(fs.readFileSync(p, 'utf-8'))
-      rulesMtime = mtime
-    }
-  } catch {
-    rulesCache = JSON.parse(fs.readFileSync(p, 'utf-8'))
-    rulesMtime = Date.now()
+  if (!rulesCache) {
+    rulesCache = (rulesData as any as Record<string, string[]>)
   }
   return rulesCache!
 }
