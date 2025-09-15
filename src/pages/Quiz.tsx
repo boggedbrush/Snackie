@@ -8,6 +8,7 @@ export default function Quiz() {
   const [dinnerTime, setDinnerTime] = useState('18:30')
   const [preference, setPreference] = useState('balanced')
   const [restrictions, setRestrictions] = useState('')
+  const [submitting, setSubmitting] = useState(false)
   const navigate = useNavigate()
 
   // Prefill from last quiz if present
@@ -26,6 +27,8 @@ export default function Quiz() {
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    if (submitting) return
+    setSubmitting(true)
     const payload = {
       breakfastTime,
       lunchTime,
@@ -50,6 +53,9 @@ export default function Quiz() {
     } catch (err) {
       // Basic fallback: still navigate to results page which will try to load
       navigate('/results/failed')
+    } finally {
+      // Navigation will unmount this component; this is a safety reset.
+      setSubmitting(false)
     }
   }
 
@@ -66,32 +72,54 @@ export default function Quiz() {
   }, [breakfastTime, lunchTime, dinnerTime, validTimes])
 
   return (
-    <form className="space-y-4" onSubmit={onSubmit} noValidate>
-      <h1 className="text-2xl font-semibold">Your routine</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <TimePicker label="Breakfast" value={breakfastTime} onChange={setBreakfastTime} required />
-        <TimePicker label="Lunch" value={lunchTime} onChange={setLunchTime} required />
-        <TimePicker label="Dinner" value={dinnerTime} onChange={setDinnerTime} required />
-      </div>
-      {!logicalOrder && (
-        <p className="text-sm text-amber-700">Please ensure breakfast &lt; lunch &lt; dinner times for best results.</p>
+    <>
+      <form className="space-y-4" onSubmit={onSubmit} noValidate aria-busy={submitting}>
+        <h1 className="text-2xl font-semibold">Your routine</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <TimePicker label="Breakfast" value={breakfastTime} onChange={setBreakfastTime} required />
+          <TimePicker label="Lunch" value={lunchTime} onChange={setLunchTime} required />
+          <TimePicker label="Dinner" value={dinnerTime} onChange={setDinnerTime} required />
+        </div>
+        {!logicalOrder && (
+          <p className="text-sm text-amber-700">Please ensure breakfast &lt; lunch &lt; dinner times for best results.</p>
+        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="preference" className="block text-sm font-medium mb-1">Preference</label>
+            <select id="preference" value={preference} onChange={e => setPreference(e.target.value)} className="w-full border rounded px-3 py-2">
+              <option value="balanced">Balanced</option>
+              <option value="high-protein">High-protein</option>
+              <option value="keto">Keto</option>
+              <option value="low-carb">Low-carb</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="restrictions" className="block text-sm font-medium mb-1">Restrictions (comma-separated)</label>
+            <input id="restrictions" value={restrictions} onChange={e => setRestrictions(e.target.value)} placeholder="nuts, dairy" className="w-full border rounded px-3 py-2" />
+          </div>
+        </div>
+        <button
+          type="submit"
+          disabled={!validTimes || !logicalOrder || submitting}
+          className="btn-banana disabled:opacity-50 px-4 py-2 rounded-md min-w-[12rem]"
+        >
+          See my snacks
+        </button>
+      </form>
+
+      {submitting && (
+        <div className="fixed inset-0 z-50 bg-white/80 backdrop-blur flex flex-col items-center justify-center text-center p-6" role="status" aria-live="polite">
+          <div className="mb-3">
+            <span className="banana-loader text-6xl" aria-hidden="true">
+              <span className="banana-slice">🍌</span>
+              <span className="banana-slice">🍌</span>
+              <span className="banana-slice">🍌</span>
+            </span>
+          </div>
+          <p className="text-slate-800 font-medium text-lg">Mixing up your snacks…</p>
+          <p className="text-slate-600">This should only take a moment.</p>
+        </div>
       )}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="preference" className="block text-sm font-medium mb-1">Preference</label>
-          <select id="preference" value={preference} onChange={e => setPreference(e.target.value)} className="w-full border rounded px-3 py-2">
-            <option value="balanced">Balanced</option>
-            <option value="high-protein">High-protein</option>
-            <option value="keto">Keto</option>
-            <option value="low-carb">Low-carb</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="restrictions" className="block text-sm font-medium mb-1">Restrictions (comma-separated)</label>
-          <input id="restrictions" value={restrictions} onChange={e => setRestrictions(e.target.value)} placeholder="nuts, dairy" className="w-full border rounded px-3 py-2" />
-        </div>
-      </div>
-      <button type="submit" disabled={!validTimes || !logicalOrder} className="btn-banana disabled:opacity-50 px-4 py-2 rounded-md">See my snacks</button>
-    </form>
+    </>
   )
 }
