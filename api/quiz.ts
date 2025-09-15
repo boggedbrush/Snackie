@@ -74,17 +74,27 @@ export default async function handler(req: Request): Promise<Response> {
   const used = new Set<string>()
 
   const recommendations: any[] = []
+  // Prevent the same add-on from appearing more than once across the plan
+  const usedAddonsGlobal = new Set<string>()
   for (const w of windows) {
     const items: any[] = []
     // two combos with distinct base categories within this window
     const usedBasesWindow = new Set<string>()
+    const usedAddonsWindow = new Set<string>()
     for (const it of combosEnriched) {
       const key = it.name.toLowerCase()
       const baseCat = (it as any).baseCategory || ''
-      if (used.has(key) || (baseCat && usedBasesWindow.has(baseCat))) continue
+      const add0 = Array.isArray((it as any).addNames) ? ((it as any).addNames[0] || '').toLowerCase() : ''
+      // Disallow duplicate add-ons globally and within this window
+      if (
+        used.has(key) ||
+        (baseCat && usedBasesWindow.has(baseCat)) ||
+        (add0 && (usedAddonsGlobal.has(add0) || usedAddonsWindow.has(add0)))
+      ) continue
       items.push(it)
       used.add(key)
       if (baseCat) usedBasesWindow.add(baseCat)
+      if (add0) { usedAddonsGlobal.add(add0); usedAddonsWindow.add(add0) }
       if (items.length >= 2) break
     }
     // two singles (non-bases)

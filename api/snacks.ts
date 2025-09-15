@@ -20,6 +20,10 @@ export default async function handler(req: Request): Promise<Response> {
     .split(',')
     .map(s => s.trim().toLowerCase())
     .filter(Boolean)
+  const excludeAdds = (searchParams.get('excludeAdds') || '')
+    .split(',')
+    .map(s => s.trim().toLowerCase())
+    .filter(Boolean)
 
   const combineParam = (searchParams.get('combine') || '').toLowerCase()
   const wantCombos = combineParam === 'true' || combineParam === 'combo'
@@ -39,6 +43,7 @@ export default async function handler(req: Request): Promise<Response> {
     lockBaseName,
     lockAddName,
     sideOnly: !wantCombos && sideOnly,
+    excludeAddNames: wantCombos ? excludeAdds : [],
   })
 
   const results = await Promise.all(

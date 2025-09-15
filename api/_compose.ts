@@ -100,6 +100,7 @@ export async function generateSnacks({
   lockBaseName,
   lockAddName,
   sideOnly,
+  excludeAddNames = [],
 }: {
   preference?: string
   restrictions?: string[]
@@ -113,6 +114,7 @@ export async function generateSnacks({
   lockBaseName?: string
   lockAddName?: string
   sideOnly?: boolean
+  excludeAddNames?: string[]
 }): Promise<GeneratedSnack[]> {
   const comps = loadComponents()
   const rules = loadRules()
@@ -127,6 +129,8 @@ export async function generateSnacks({
 
   const out: GeneratedSnack[] = []
   const used = new Set<string>()
+  const usedAddNames = new Set<string>()
+  const excludeAddSet = new Set(excludeAddNames.map(s => s.toLowerCase()))
 
   function pick<T>(arr: T[]): T | null {
     if (arr.length === 0) return null
@@ -175,12 +179,16 @@ export async function generateSnacks({
         const allergens = (a.allergens || []).map(x => x.toLowerCase())
         return !lowerRestr.some(r => name.includes(r) || allergens.includes(r))
       })
+      .filter(a => !excludeAddSet.has((a.name || '').toLowerCase()))
     const addCount = Math.max(minAdds, Math.min(maxAdds, 1 + Math.floor(rng() * (maxAdds - minAdds + 1))))
     const picks: Component[] = []
     const pool = candidates.slice()
     while (picks.length < addCount && pool.length) {
       const p = pool.splice(Math.floor(rng() * pool.length), 1)[0]
-      picks.push(p)
+      // Avoid duplicate add-ons within a single generation call
+      if (!usedAddNames.has((p.name || '').toLowerCase())) {
+        picks.push(p)
+      }
     }
     const name = buildName(base, picks)
     const key = name.toLowerCase()
@@ -192,6 +200,7 @@ export async function generateSnacks({
     const imgTerm = [base.imageSearch?.[0] || base.name, picks[0]?.name].filter(Boolean).join(' ')
     out.push({ name, ...macros, allergens: allAllergens, imageSearch: imgTerm, isCombo: true, baseName: base.name, baseCategory: base.category, addNames: picks.map(p => p.name) })
     used.add(key)
+    for (const p of picks) usedAddNames.add((p.name || '').toLowerCase())
   }
 
   // If combine with locks requested but loop above returned empty (e.g., due to pick randomness),
@@ -228,6 +237,7 @@ export async function generateSnacks({
       const allowedCats = rulesMap[b.category] || []
       for (const a of shuffledAdds) {
         if (!allowedCats.includes(a.category)) continue
+        if (excludeAddSet.has((a.name || '').toLowerCase()) || usedAddNames.has((a.name || '').toLowerCase())) continue
         const keyName = buildName(b, [a])
         const key = keyName.toLowerCase()
         const allAllergens = [...new Set([...(b.allergens || []), ...(a.allergens || [])])]
@@ -237,6 +247,7 @@ export async function generateSnacks({
         const imgTerm = [b.imageSearch?.[0] || b.name, a.name].join(' ')
         out.push({ name: keyName, ...macros, allergens: allAllergens, imageSearch: imgTerm, isCombo: true, baseName: b.name, baseCategory: b.category, addNames: [a.name] })
         used.add(key)
+        usedAddNames.add((a.name || '').toLowerCase())
         if (out.length >= limit) break
       }
       if (out.length >= limit) break

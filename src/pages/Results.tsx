@@ -64,11 +64,13 @@ export default function Results() {
                       onClick={async () => {
                         const allNames = windows.flatMap((w: any) => w.items.map((it: any) => it.name))
                         const exclude = encodeURIComponent(allNames.join(','))
+                        const allAddons = windows.flatMap((w: any) => (w.items || []).filter((it: any) => it.isCombo).map((it: any) => (it.addNames?.[0] || '')))
+                        const excludeAdds = encodeURIComponent(allAddons.filter(Boolean).join(','))
                         const restrictions = encodeURIComponent((data.quiz?.restrictions || []).join(','))
                         const pref = encodeURIComponent(data.quiz?.preference || 'balanced')
                         // fetch one combo and two singles
                         const [resCombo, resSingles] = await Promise.all([
-                          fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&restrictions=${restrictions}&combine=combo`),
+                          fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&excludeAdds=${excludeAdds}&restrictions=${restrictions}&combine=combo`),
                           fetch(`/api/snacks?type=${pref}&limit=2&exclude=${exclude}&restrictions=${restrictions}&side=true`)
                         ])
                         if (resCombo.ok && resSingles.ok) {
@@ -92,9 +94,11 @@ export default function Results() {
                           onSwap={async () => {
                             const allNames = windows.flatMap((w: any) => w.items.map((it: any) => it.name))
                             const exclude = encodeURIComponent(allNames.join(','))
+                            const allAddons = windows.flatMap((w: any) => (w.items || []).filter((it: any) => it.isCombo).map((it: any) => (it.addNames?.[0] || '')))
+                            const excludeAdds = encodeURIComponent(allAddons.filter(Boolean).join(','))
                             const restrictions = encodeURIComponent((data.quiz?.restrictions || []).join(','))
                             const pref = encodeURIComponent(data.quiz?.preference || 'balanced')
-                            const res = await fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&restrictions=${restrictions}&combine=combo`)
+                            const res = await fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&excludeAdds=${excludeAdds}&restrictions=${restrictions}&combine=combo`)
                             if (res.ok) {
                               const js = await res.json()
                               const next = js.items?.[0]
@@ -121,10 +125,12 @@ export default function Results() {
                           onSwapAdd={async () => {
                             const allNames = windows.flatMap((w: any) => w.items.map((it: any) => it.name))
                             const exclude = encodeURIComponent(allNames.join(','))
+                            const allAddons = windows.flatMap((w: any) => (w.items || []).filter((it: any) => it.isCombo).map((it: any) => (it.addNames?.[0] || '')))
+                            const excludeAdds = encodeURIComponent(allAddons.filter(Boolean).join(','))
                             const restrictions = encodeURIComponent((data.quiz?.restrictions || []).join(','))
                             const pref = encodeURIComponent(data.quiz?.preference || 'balanced')
                             const baseName = encodeURIComponent((combo.baseName) || '')
-                            const res = await fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&restrictions=${restrictions}&combine=combo&base=${baseName}`)
+                            const res = await fetch(`/api/snacks?type=${pref}&limit=1&exclude=${exclude}&excludeAdds=${excludeAdds}&restrictions=${restrictions}&combine=combo&base=${baseName}`)
                             if (res.ok) {
                               const js = await res.json()
                               const next = js.items?.[0]
