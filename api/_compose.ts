@@ -108,6 +108,7 @@ export async function generateSnacks({
   const used = new Set<string>()
   const usedAddNames = new Set<string>()
   const excludeAddSet = new Set(excludeAddNames.map(s => s.toLowerCase()))
+  const exhaustedBaseNames = new Set<string>()
 
   function pick<T>(arr: T[]): T | null {
     if (arr.length === 0) return null
@@ -147,9 +148,22 @@ export async function generateSnacks({
     return out
   }
 
+  const maxAttempts = Math.max(limit * 10, bases.length * 5, 20)
+  let attempts = 0
+
   while (out.length < limit && bases.length) {
-    const base = pick(bases)!
+    if (attempts++ > maxAttempts) break
+    const availableBases = bases.filter(b => !exhaustedBaseNames.has((b.name || '').toLowerCase()))
+    if (!availableBases.length) break
+    const base = pick(availableBases)!
     const allowedCats = rules[base.category] || []
+    const baseNameKey = (base.name || '').toLowerCase()
+    const baseAllergens = (base.allergens || []).map(x => x.toLowerCase())
+    if (lowerRestr.some(r => baseNameKey.includes(r) || baseAllergens.includes(r))) {
+      exhaustedBaseNames.add(baseNameKey)
+      continue
+    }
+
     const candidates = adds.filter(a => allowedCats.includes(a.category))
       .filter(a => {
         const name = (a.name || '').toLowerCase()
@@ -157,15 +171,24 @@ export async function generateSnacks({
         return !lowerRestr.some(r => name.includes(r) || allergens.includes(r))
       })
       .filter(a => !excludeAddSet.has((a.name || '').toLowerCase()))
+    const candidatePool = candidates.filter(a => !usedAddNames.has((a.name || '').toLowerCase()))
+    if (candidatePool.length < minAdds) {
+      exhaustedBaseNames.add(baseNameKey)
+      continue
+    }
     const addCount = Math.max(minAdds, Math.min(maxAdds, 1 + Math.floor(rng() * (maxAdds - minAdds + 1))))
     const picks: Component[] = []
-    const pool = candidates.slice()
+    const pool = candidatePool.slice()
     while (picks.length < addCount && pool.length) {
       const p = pool.splice(Math.floor(rng() * pool.length), 1)[0]
       // Avoid duplicate add-ons within a single generation call
       if (!usedAddNames.has((p.name || '').toLowerCase())) {
         picks.push(p)
       }
+    }
+    if (picks.length < minAdds) {
+      exhaustedBaseNames.add(baseNameKey)
+      continue
     }
     const name = buildName(base, picks)
     const key = name.toLowerCase()

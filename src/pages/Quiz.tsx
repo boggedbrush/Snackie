@@ -39,8 +39,11 @@ export default function Quiz() {
     // Save for edit-prefill
     sessionStorage.setItem('snackie.lastQuiz', JSON.stringify(payload))
     // Submit to API and route to results by id
+    let timeoutId: any
     try {
-      const res = await fetch('/api/quiz', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload) })
+      const ctrl = new AbortController()
+      timeoutId = setTimeout(() => ctrl.abort(), 20000)
+      const res = await fetch('/api/quiz', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl.signal })
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       try {
@@ -55,6 +58,7 @@ export default function Quiz() {
       navigate('/results/failed')
     } finally {
       // Navigation will unmount this component; this is a safety reset.
+      try { if (timeoutId) clearTimeout(timeoutId) } catch {}
       setSubmitting(false)
     }
   }
@@ -72,9 +76,12 @@ export default function Quiz() {
   }, [breakfastTime, lunchTime, dinnerTime, validTimes])
 
   return (
-    <>
-      <form className="space-y-4" onSubmit={onSubmit} noValidate aria-busy={submitting}>
-        <h1 className="text-2xl font-semibold">Your routine</h1>
+    <section className="flex flex-col items-center py-6 px-4 w-full min-h-[calc(100vh-16rem)] justify-center">
+      <form className="w-full max-w-2xl space-y-5 bg-white/70 backdrop-blur-sm rounded-xl border border-white/40 shadow-sm p-6" onSubmit={onSubmit} noValidate aria-busy={submitting}>
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-semibold">Your routine</h1>
+          <p className="text-sm text-slate-600">Set your mealtimes and preferences to personalize every snack window.</p>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <TimePicker label="Breakfast" value={breakfastTime} onChange={setBreakfastTime} required />
           <TimePicker label="Lunch" value={lunchTime} onChange={setLunchTime} required />
@@ -98,13 +105,15 @@ export default function Quiz() {
             <input id="restrictions" value={restrictions} onChange={e => setRestrictions(e.target.value)} placeholder="nuts, dairy" className="w-full border rounded px-3 py-2" />
           </div>
         </div>
-        <button
-          type="submit"
-          disabled={!validTimes || !logicalOrder || submitting}
-          className="btn-banana disabled:opacity-50 px-4 py-2 rounded-md min-w-[12rem]"
-        >
-          See my snacks
-        </button>
+        <div className="flex justify-center">
+          <button
+            type="submit"
+            disabled={!validTimes || !logicalOrder || submitting}
+            className="btn-banana disabled:opacity-50 px-6 py-3 rounded-md min-w-[14rem] text-base font-medium shadow-sm"
+          >
+            See my snacks
+          </button>
+        </div>
       </form>
 
       {submitting && (
@@ -120,6 +129,6 @@ export default function Quiz() {
           <p className="text-slate-600">This should only take a moment.</p>
         </div>
       )}
-    </>
+    </section>
   )
 }

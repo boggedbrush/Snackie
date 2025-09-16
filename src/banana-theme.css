@@ -19,14 +19,15 @@ body.banana-bg {
 
 /* Banana brand mark: a playful banana accent before the word */
 .brand-snackie {
-  position: relative;
   color: var(--banana-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-left: 0.3rem;
 }
 .brand-snackie::before {
   content: '🍌';
-  position: absolute;
-  left: -1.75rem;
-  top: -0.2rem;
+  display: inline-block;
   transform: rotate(-10deg);
   font-size: 1.5rem;
 }

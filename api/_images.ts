@@ -1,4 +1,5 @@
 const DEFAULT_CACHE_TTL = 300_000 // 5 minutes
+const FETCH_TIMEOUT_MS = 2000 // keep API snappy even if image sources hang
 let CACHE_TTL = DEFAULT_CACHE_TTL
 
 export function setCacheTtl(ms: number) {
@@ -31,12 +32,24 @@ export async function imageFor(term: string): Promise<ImageResult> {
   return result
 }
 
+async function fetchWithTimeout(url: string, ms = FETCH_TIMEOUT_MS): Promise<Response> {
+  const ctrl = new AbortController()
+  const t = setTimeout(() => ctrl.abort(), ms)
+  try {
+    // Node 18+ fetch supports AbortSignal
+    const resp = await fetch(url, { signal: ctrl.signal })
+    return resp
+  } finally {
+    clearTimeout(t)
+  }
+}
+
 async function fromWikimedia(term: string): Promise<ImageResult> {
   const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=1&gsrsearch=${encodeURIComponent(
     term + ' food'
   )}&prop=imageinfo|info&iiprop=url|extmetadata&iiurlwidth=192&format=json&origin=*`
   try {
-    const resp = await fetch(url)
+    const resp = await fetchWithTimeout(url)
     if (!resp.ok) return null
     const data = (await resp.json()) as any
     const pages = data?.query?.pages
@@ -65,7 +78,7 @@ async function fromOFF(term: string): Promise<ImageResult> {
     term
   )}&search_simple=1&action=process&json=1&page_size=1`
   try {
-    const resp = await fetch(url)
+    const resp = await fetchWithTimeout(url)
     if (!resp.ok) return null
     const data = (await resp.json()) as any
     const p = data?.products?.[0]

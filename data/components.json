@@ -43,6 +43,7 @@
     "typeTags": [
       "keto",
       "low-carb",
+      "high-protein",
       "balanced"
     ],
     "allergens": [
@@ -77,6 +78,8 @@
     "name": "Peanut Butter",
     "category": "add.dip_nut_butter",
     "typeTags": [
+      "high-protein",
+      "low-carb",
       "balanced"
     ],
     "allergens": [
@@ -95,6 +98,8 @@
     "category": "add.dip_nut_butter",
     "typeTags": [
       "keto",
+      "low-carb",
+      "high-protein",
       "balanced"
     ],
     "allergens": [
@@ -216,7 +221,9 @@
     "category": "add.nuts",
     "typeTags": [
       "balanced",
-      "keto"
+      "keto",
+      "low-carb",
+      "high-protein"
     ],
     "allergens": [
       "nuts"
@@ -357,6 +364,8 @@
     "name": "Trail Mix",
     "category": "side.mixture",
     "typeTags": [
+      "high-protein",
+      "low-carb",
       "balanced"
     ],
     "allergens": [
@@ -545,6 +554,8 @@
     "name": "Sunflower Seeds",
     "category": "add.seeds",
     "typeTags": [
+      "high-protein",
+      "low-carb",
       "balanced"
     ],
     "allergens": [
@@ -563,6 +574,8 @@
     "category": "add.seeds",
     "typeTags": [
       "keto",
+      "low-carb",
+      "high-protein",
       "balanced"
     ],
     "allergens": [
@@ -736,6 +749,8 @@
     "category": "add.nuts",
     "typeTags": [
       "keto",
+      "low-carb",
+      "high-protein",
       "balanced"
     ],
     "allergens": [

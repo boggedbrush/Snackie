@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 export default function App() {
   const { pathname } = useLocation()
   return (
-    <div className="max-w-3xl mx-auto p-6">
+    <div className="max-w-3xl mx-auto p-6 pb-12 min-h-screen flex flex-col">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:bg-white focus:text-slate-900 focus:px-3 focus:py-2 focus:rounded focus:shadow">
         Skip to content
       </a>
@@ -14,10 +14,10 @@ export default function App() {
           <Link className={navClass(pathname.startsWith('/quiz'))} to="/quiz">Quiz</Link>
         </nav>
       </header>
-      <main id="main">
+      <main id="main" className="flex-1 flex flex-col">
         <Outlet />
       </main>
-      <footer className="mt-12 text-xs text-slate-500 space-y-1">
+      <footer className="mt-12 text-xs text-slate-500 space-y-1 text-center">
         <p>© {new Date().getFullYear()} Snackie</p>
         <p>
           Images courtesy of{' '}
